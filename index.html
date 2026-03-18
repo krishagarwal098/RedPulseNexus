@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="RedPulse Nexus — A digital platform that connects blood donors, hospitals, and patients in real-time emergencies." />
+  <title>RedPulse Nexus — Digital Blood Donation Network</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Leaflet.js for interactive map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+</head>
+
+<body class="">
+
+  <!-- ─── AUTH PORTAL ─── -->
+  <div class="auth-portal" id="authPortal">
+    <div class="auth-bg">
+      <div class="hero-orb orb1"></div>
+      <div class="hero-orb orb2"></div>
+    </div>
+
+    <div class="auth-card">
+      <button class="banner-close"
+        style="position:absolute; top: 16px; right: 20px; font-size: 1.2rem; background: none; border: none; cursor: pointer; color: var(--text2);"
+        onclick="document.body.classList.remove('auth-active')">✕</button>
+      <div class="auth-header">
+        <div class="brand-icon">🩸</div>
+        <h2>Blood<span class="brand-accent">Link</span></h2>
+        <p>Digital Blood Donation Network</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+        <button class="auth-tab" onclick="switchAuthTab('blood-bank')">Blood Bank</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+        <div class="form-group pb-1">
+          <label id="loginIdLabel">Email or Phone Number</label>
+          <input type="text" id="loginId" placeholder="Enter your email or phone" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPwd" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-submit" id="loginBtn">Login to Network</button>
+        <p class="auth-footer-text" style="text-align:center;margin-top:16px;">
+          <a href="#" onclick="switchAuthTab('forgot'); return false;"
+            style="color:var(--text2);text-decoration:none;font-size:0.85rem;">Forgot Password?</a>
+        </p>
+      </form>
+
+      <!-- Forgot Password Form -->
+      <form id="forgotForm" class="auth-form" onsubmit="handleForgot(event)">
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:16px;text-align:center;">Enter your registered
+          phone number to reset your password.</p>
+        <div class="form-group">
+          <label>Registered Phone Number</label>
+          <input type="tel" id="forgotPhone" placeholder="+91 9876543210" required />
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="forgotPwd" placeholder="Create new password" required />
+        </div>
+        <button type="submit" class="btn-submit">Reset Password</button>
+        <p class="auth-footer-text" style="text-align:center;margin-top:16px;">
+          <a href="#" onclick="switchAuthTab('login'); return false;"
+            style="color:var(--text2);text-decoration:none;font-size:0.85rem;">Back to Login</a>
+        </p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regName" placeholder="Aditya Sharma" required />
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="regPhone" placeholder="+91 9876543210" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPwd" placeholder="Create a password" required />
+        </div>
+        <button type="submit" class="btn-submit">Create Account</button>
+      </form>
+
+      <!-- Blood Bank Section: Login + Register via sub-tabs -->
+      <form id="bloodBankForm" class="auth-form" onsubmit="return false;">
+        <!-- Sub-tabs for Blood Bank -->
+        <div class="auth-tabs" style="margin-bottom:18px;">
+          <button type="button" class="auth-tab active" id="bbLoginTab" onclick="switchBankTab('login')">Login</button>
+          <button type="button" class="auth-tab" id="bbRegTab" onclick="switchBankTab('register')">Register</button>
+        </div>
+
+        <!-- Blood Bank Login -->
+        <div id="bbLoginSection">
+          <div class="form-group">
+            <label>Registered Phone *</label>
+            <input type="tel" id="bbLoginPhone" placeholder="011-2345678" />
+          </div>
+          <div class="form-group">
+            <label>Password *</label>
+            <input type="password" id="bbLoginPwd" placeholder="••••••••" />
+          </div>
+          <button type="button" class="btn-submit" onclick="handleBankLogin()">🏥 Login as Blood Bank</button>
+        </div>
+
+        <!-- Blood Bank Register -->
+        <div id="bbRegSection" style="display:none;">
+          <div class="form-group">
+            <label>Blood Bank / Hospital Name *</label>
+            <input type="text" id="bbName" placeholder="Apollo Blood Bank" />
+          </div>
+          <div class="form-group">
+            <label>Type *</label>
+            <select id="bbType">
+              <option value="">Select Type</option>
+              <option>Blood Bank</option>
+              <option>Hospital</option>
+              <option>Donation Camp</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Full Address *</label>
+            <input type="text" id="bbAddress" placeholder="Sector 18, Noida" />
+          </div>
+          <div class="form-group">
+            <label>Contact Phone *</label>
+            <input type="tel" id="bbPhone" placeholder="011-2345678" />
+          </div>
+          <div class="form-group">
+            <label>Password *</label>
+            <input type="password" id="bbPwd" placeholder="Create a password" />
+          </div>
+          <div class="form-group">
+            <label>Operating Hours *</label>
+            <input type="text" id="bbOpen" placeholder="24/7  or  9AM–6PM" />
+          </div>
+          <div class="form-group">
+            <label>Available Blood Groups</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="A+" class="bb-blood" /> A+</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="A-" class="bb-blood" /> A-</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="B+" class="bb-blood" /> B+</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="B-" class="bb-blood" /> B-</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="AB+" class="bb-blood" /> AB+</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="AB-" class="bb-blood" /> AB-</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="O+" class="bb-blood" /> O+</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><input type="checkbox"
+                  value="O-" class="bb-blood" /> O-</label>
+            </div>
+          </div>
+          <button type="button" class="btn-submit" onclick="registerBloodBank()"><span>🏥</span> Register Blood
+            Bank</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ─── NOTIFICATION TOAST ─── -->
+  <div id="toast-container"></div>
+
+  <!-- ─── AI CHATBOT WIDGET ─── -->
+  <button class="chatbot-toggle" id="chatbotToggle" onclick="toggleChatbot()">
+    <span style="font-size:1.5rem;">🤖</span>
+  </button>
+  <div class="chatbot-window" id="chatbotWindow">
+    <div class="chat-header">
+      <div>
+        <h4 style="margin:0;font-size:1rem;display:flex;align-items:center;gap:6px">⚕️ RedPulse AI <span style="font-weight:900;margin-left:2px;">✚</span></h4>
+        <small style="opacity:0.8;font-size:0.75rem">Ask me anything about donation!</small>
+      </div>
+      <button onclick="toggleChatbot()"
+        style="background:none;border:none;color:white;cursor:pointer;font-size:1.2rem">&times;</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg bot">Hi! I'm the RedPulse assistant. How can I help you today?</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="handleChatKey(event)" />
+      <button onclick="sendChatMessage()" style="color:white;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">➤</button>
+    </div>
+  </div>
+
+  <!-- ─── MAIN APP WRAPPER ─── -->
+  <div class="app-wrapper" id="appWrapper">
+
+    <!-- ─── EMERGENCY ALERT BANNER ─── -->
+    <div class="emergency-banner" id="emergencyBanner">
+      <span class="pulse-dot"></span>
+      <span id="emergencyText">🚨 URGENT: O- blood needed at City Hospital — 2.3 km away</span>
+      <button class="btn-respond" onclick="respondToEmergency()">Respond Now</button>
+      <button class="banner-close" onclick="closeBanner()">✕</button>
+    </div>
+
+    <!-- ─── NAVBAR ─── -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-brand">
+        <div class="brand-icon">⚕️</div>
+        <span class="brand-name">RedPulse <span class="brand-accent">Nexus</span></span>
+      </div>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#" class="nav-link active" data-section="home">Home</a></li>
+        <li><a href="#" class="nav-link" data-section="dashboard" style="display:flex;align-items:center;gap:6px;">Dashboard <span class="pulse-dot" style="position:static;box-shadow:none;"></span></a></li>
+        <li><a href="#" class="nav-link" data-section="donate">Donate</a></li>
+        <li><a href="#" class="nav-link request-blood-btn" data-section="request">Request Blood</a></li>
+        <li><a href="#" class="nav-link" data-section="locator">Find Blood Bank</a></li>
+        <li><a href="#" class="nav-link" data-section="manage">Manage</a></li>
+        <li id="donorInboxNavItem" style="display:none;"><a href="#" class="nav-link" data-section="donor-inbox">📥 My
+            Appointments</a></li>
+        <li id="stockNavItem" style="display:none;"><a href="#" class="nav-link" data-section="stock">🩸 Blood Stock</a>
+        </li>
+        <li id="inboxNavItem" style="display:none;"><a href="#" class="nav-link" data-section="inbox">📥 Inbox</a></li>
+        <li><a href="#" class="nav-link" data-section="about">About Us</a></li>
+      </ul>
+      <div class="nav-actions">
+        <div id="authActions" style="display: flex; gap: 12px; align-items: center;">
+          <button class="btn-primary" onclick="showSection('donate')">Login as Donor</button>
+        </div>
+        <div id="userProfile" style="display: none; align-items: center; gap: 12px;">
+          <span id="userNameDisplay" style="font-weight: 600; color: var(--text);"></span>
+          <button class="btn-outline" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <button class="btn-notif" onclick="toggleNotifPanel()" id="notifBtn">
+          <span>🔔</span>
+          <span class="notif-badge" id="notifBadge">4</span>
+        </button>
+        <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">☰</button>
+      </div>
+    </nav>
+
+    <!-- ─── NOTIFICATION PANEL ─── -->
+    <div class="notif-panel" id="notifPanel">
+      <div class="notif-header">
+        <h3>Notifications</h3>
+        <button onclick="clearAllNotifs()" class="btn-clear">Clear All</button>
+      </div>
+      <div class="notif-list" id="notifList"></div>
+    </div>
+    <div class="notif-overlay" id="notifOverlay" onclick="toggleNotifPanel()"></div>
+
+    <!-- ═══════════════════════════════ SECTIONS ═══════════════════════════════ -->
+
+    <!-- ─── SECTION: HOME / HERO ─── -->
+    <section class="section active" id="section-home">
+      <div class="hero">
+        <div class="hero-bg">
+          <div class="hero-orb orb1"></div>
+          <div class="hero-orb orb2"></div>
+          <div class="hero-orb orb3"></div>
+        </div>
+        <div class="hero-content">
+          <div class="hero-badge">❤️ RedPulse Nexus</div>
+          <h1 class="hero-title"><span class="gradient-text">Every Drop Saves a Life</span> </h1>
+          <p class="hero-subtitle">RedPulse Nexus connects blood donors, hospitals, and patients in real-time — eliminating
+            lethal delays during medical crises.</p>
+          <div class="hero-actions">
+            <button class="btn-hero-primary" onclick="showSection('donate')">
+              <span>💉</span> Login as Donor
+            </button>
+            <button class="btn-hero-secondary" onclick="showSection('request')">
+              <span>🆘</span> Request Blood
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-card">
+              <div class="stat-num" data-target="donors">0</div>
+              <div class="stat-label">Registered Donors</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" data-target="lives">0</div>
+              <div class="stat-label">Requests Fulfilled</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" data-target="hospitals">0</div>
+              <div class="stat-label">Partner Hospitals / Blood Banks</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" data-target="requests">0</div>
+              <div class="stat-label">Active Requests</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blood Types Grid -->
+      <div class="container">
+        <div class="section-header">
+          <h2>Blood Type Availability</h2>
+          <p>Real-time donor availability across all blood groups</p>
+        </div>
+        <div class="blood-grid" id="bloodGrid"></div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="container">
+        <div class="section-header">
+          <h2>How RedPulse Nexus Works</h2>
+          <p>Three simple steps to connect donors with patients</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon">📝</div>
+            <div class="step-num">01</div>
+            <h3>Register</h3>
+            <p>Donors sign up with their blood group, location, and contact details. Hospitals join as verified
+              partners.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-icon">🚨</div>
+            <div class="step-num">02</div>
+            <h3>Emergency Alert</h3>
+            <p>When blood is needed, an alert is instantly sent to all compatible donors within the nearby radius.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-icon">❤️</div>
+            <div class="step-num">03</div>
+            <h3>Donate & Save</h3>
+            <p>Donors respond, arrive at the hospital, and save lives. The entire process is tracked digitally.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: DASHBOARD ─── -->
+    <section class="section" id="section-dashboard">
+      <div class="container">
+        <div class="page-header">
+          <h1>Live Dashboard</h1>
+          <p>Real-time overview of the blood donation network</p>
+          <div class="live-indicator"><span class="pulse-dot"></span> Live</div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="dash-card dash-red">
+            <div class="dash-icon">🆘</div>
+            <div class="dash-info">
+              <div class="dash-num" id="activeRequests">23</div>
+              <div class="dash-label">Active Requests</div>
+            </div>
+          </div>
+          <div class="dash-card dash-green">
+            <div class="dash-icon">✅</div>
+            <div class="dash-info">
+              <div class="dash-num" id="fulfilledToday">18</div>
+              <div class="dash-label">Fulfilled Today</div>
+            </div>
+          </div>
+          <div class="dash-card dash-blue">
+            <div class="dash-icon">👥</div>
+            <div class="dash-info">
+              <div class="dash-num" id="onlineDonors">284</div>
+              <div class="dash-label">Online Donors</div>
+            </div>
+          </div>
+          <div class="dash-card dash-orange">
+            <div class="dash-icon">🏥</div>
+            <div class="dash-info">
+              <div class="dash-num" id="activeHospitals">89</div>
+              <div class="dash-label">Partner Hospitals</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-split">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>🚨 Urgent Requests</h3>
+              <span class="badge-urgent" id="urgentCount">8 urgent</span>
+            </div>
+            <div class="request-list" id="urgentRequestList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>📊 Blood Inventory</h3>
+              <span class="badge-info">Updated now</span>
+            </div>
+            <div class="inventory-list" id="inventoryList"></div>
+          </div>
+        </div>
+
+        <div class="panel mt-2">
+          <div class="panel-header">
+            <h3>📡 Recent Activity Feed</h3>
+          </div>
+          <div class="activity-feed" id="activityFeed"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: DONATE (REGISTRATION) ─── -->
+    <section class="section" id="section-donate">
+      <div class="container container-narrow">
+        <div class="page-header">
+          <h1>Become a Donor</h1>
+          <p>Join thousands of heroes saving lives across the city</p>
+        </div>
+
+        <div class="form-card">
+          <div class="form-tabs">
+            <button class="form-tab active" onclick="switchTab('new')">New Donor</button>
+            <button class="form-tab" onclick="switchTab('existing')">Find My Profile</button>
+          </div>
+
+          <form id="donorForm" onsubmit="registerDonor(event)" class="tab-content active" data-tab="new">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="dName" placeholder="Aditya Sharma" required />
+              </div>
+              <div class="form-group">
+                <label>Age *</label>
+                <input type="number" id="dAge" placeholder="25" min="18" max="65" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="dPhone" placeholder="+91 9876543210" required />
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="dEmail" placeholder="you@email.com" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Blood Group *</label>
+                <select id="dBlood" required>
+                  <option value="">Select Blood Group</option>
+                  <option>A+</option>
+                  <option>A-</option>
+                  <option>B+</option>
+                  <option>B-</option>
+                  <option>AB+</option>
+                  <option>AB-</option>
+                  <option>O+</option>
+                  <option>O-</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select id="dGender">
+                  <option value="">Select Gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Address / Area *</label>
+              <input type="text" id="dAddress" placeholder="Sector 17, Noida" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>City *</label>
+                <input type="text" id="dCity" placeholder="Delhi" required />
+              </div>
+              <div class="form-group">
+                <label>Last Donation Date</label>
+                <input type="date" id="dLastDonation" />
+              </div>
+            </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dAvailable" checked />
+                <span class="checkmark"></span>
+                I'm currently available to donate
+              </label>
+            </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dAlerts" checked />
+                <span class="checkmark"></span>
+                Receive emergency alerts for compatible blood requests nearby
+              </label>
+            </div>
+            <button type="submit" class="btn-submit">
+              <span>💉</span> Register as Donor
+            </button>
+          </form>
+
+          <div class="tab-content" data-tab="existing">
+            <div class="form-group">
+              <label>Enter your Phone Number</label>
+              <input type="tel" id="searchPhone" placeholder="+91 9876543210" />
+            </div>
+            <button class="btn-submit" onclick="findDonorProfile()">Find My Profile</button>
+            <div id="profileResult"></div>
+          </div>
+        </div>
+
+        <!-- Registered Donors Table -->
+        <div class="panel mt-2">
+          <div class="panel-header">
+            <h3>👥 Registered Donors</h3>
+            <div class="search-bar">
+              <input type="text" placeholder="Search by name or blood group…" id="donorSearch"
+                oninput="filterDonors()" />
+            </div>
+          </div>
+          <div id="donorTableContainer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: REQUEST BLOOD ─── -->
+    <section class="section" id="section-request">
+      <div class="container container-narrow">
+        <div class="page-header">
+          <h1>Request Blood</h1>
+          <p>Submit an emergency or planned blood request — we'll alert nearby donors instantly</p>
+        </div>
+
+        <div class="form-card">
+          <div class="urgency-selector">
+            <div class="urgency-option urgent-emergency active" data-urgency="emergency"
+              onclick="selectUrgency('emergency')">
+              <span>🆘</span>
+              <div>
+                <strong>Emergency</strong>
+                <small>Within 2 hours</small>
+              </div>
+            </div>
+            <div class="urgency-option urgent-urgent" data-urgency="urgent" onclick="selectUrgency('urgent')">
+              <span>⚡</span>
+              <div>
+                <strong>Urgent</strong>
+                <small>Within 12 hours</small>
+              </div>
+            </div>
+            <div class="urgency-option urgent-planned" data-urgency="planned" onclick="selectUrgency('planned')">
+              <span>📅</span>
+              <div>
+                <strong>Planned</strong>
+                <small>Scheduled donation</small>
+              </div>
+            </div>
+          </div>
+
+          <form id="requestForm" onsubmit="submitRequest(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Patient / Requester Name *</label>
+                <input type="text" id="rName" placeholder="Rahul Gupta" required />
+              </div>
+              <div class="form-group">
+                <label>Contact Number *</label>
+                <input type="tel" id="rPhone" placeholder="+91 9876543210" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Blood Group *</label>
+                <select id="rBlood" required>
+                  <option value="">Select</option>
+                  <option>A+</option>
+                  <option>A-</option>
+                  <option>B+</option>
+                  <option>B-</option>
+                  <option>AB+</option>
+                  <option>AB-</option>
+                  <option>O+</option>
+                  <option>O-</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex:1">
+                <label>Component *</label>
+                <select id="rComponent" required>
+                  <option>Whole Blood</option>
+                  <option>Plasma</option>
+                  <option>Platelets</option>
+                  <option>Red Cells (RBC)</option>
+                </select>
+              </div>
+              <div class="form-group" style="width:100px;">
+                <label>Units *</label>
+                <input type="number" id="rUnits" placeholder="2" min="1" max="10" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Hospital Name *</label>
+              <input type="text" id="rHospital" placeholder="AIIMS Delhi" required />
+            </div>
+            <div class="form-group">
+              <label>Hospital Address / Area *</label>
+              <input type="text" id="rAddress" placeholder="Ansari Nagar, New Delhi" required />
+            </div>
+            <div class="form-group">
+              <label>Additional Notes</label>
+              <textarea id="rNotes" rows="3" placeholder="Patient condition, ward number, doctor's name…"></textarea>
+            </div>
+            <button type="submit" class="btn-submit btn-danger-submit">
+              <span>🆘</span> Submit Blood Request
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: BLOOD BANK LOCATOR ─── -->
+    <section class="section" id="section-locator">
+      <div class="container">
+        <div class="page-header">
+          <h1>Find Nearby Blood Banks</h1>
+          <p>GPS-powered locator — find verified blood banks near you</p>
+        </div>
+
+        <div class="locator-controls">
+          <div class="search-field">
+            <span>📍</span>
+            <input type="text" id="locationInput" placeholder="Enter your city or area…" oninput="filterBanks()" />
+          </div>
+          <select id="typeFilter" onchange="filterBanks()">
+            <option value="">All Types</option>
+            <option>Blood Bank</option>
+            <option>Hospital</option>
+            <option>Donation Camp</option>
+          </select>
+          <select id="bloodFilter" onchange="filterBanks()">
+            <option value="">All Blood Groups</option>
+            <option>A+</option>
+            <option>A-</option>
+            <option>B+</option>
+            <option>B-</option>
+            <option>AB+</option>
+            <option>AB-</option>
+            <option>O+</option>
+            <option>O-</option>
+          </select>
+          <button class="btn-locate" onclick="useMyLocation()">
+            <span>🎯</span> Use My Location
+          </button>
+        </div>
+
+        <div class="locator-layout">
+          <div class="map-container">
+            <div id="leafletMap" style="width:100%;height:100%;border-radius:16px;z-index:1;"></div>
+          </div>
+          <div class="bank-list" id="bankList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: MANAGE REQUESTS ─── -->
+    <section class="section" id="section-manage">
+      <div class="container">
+        <div class="page-header">
+          <h1>Request Management</h1>
+          <p>Hospital dashboard — manage, track, and fulfill blood requests</p>
+        </div>
+
+        <div class="manage-controls">
+          <div class="filter-tabs" id="manageFilterTabs">
+            <button class="filter-tab active" onclick="filterRequests('all', this)">All</button>
+            <button class="filter-tab" onclick="filterRequests('mine', this)">My Requests</button>
+            <button class="filter-tab" onclick="filterRequests('emergency', this)">Emergency</button>
+            <button class="filter-tab" onclick="filterRequests('urgent', this)">Urgent</button>
+            <button class="filter-tab" onclick="filterRequests('planned', this)">Planned</button>
+            <button class="filter-tab" onclick="filterRequests('fulfilled', this)">Fulfilled</button>
+            <button class="filter-tab" onclick="filterRequests('rejected', this)">⚠️ Rejected</button>
+          </div>
+          <button class="btn-primary" onclick="showSection('request')">+ New Request</button>
+        </div>
+
+        <div class="request-cards" id="manageRequestCards"></div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: REGISTER BLOOD BANK ─── -->
+    <section class="section" id="section-register-bank">
+      <div class="container container-narrow">
+        <div class="page-header">
+          <h1>Register Blood Bank</h1>
+          <p>Register your blood bank or hospital to appear on the RedPulse network locator</p>
+        </div>
+        <div class="form-card">
+          <form id="bankRegForm" onsubmit="registerBloodBank(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Blood Bank / Hospital Name *</label>
+                <input type="text" id="bbName" placeholder="Apollo Blood Bank" required />
+              </div>
+              <div class="form-group">
+                <label>Type *</label>
+                <select id="bbType" required>
+                  <option value="">Select Type</option>
+                  <option>Blood Bank</option>
+                  <option>Hospital</option>
+                  <option>Donation Camp</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Full Address *</label>
+              <input type="text" id="bbAddress" placeholder="Sector 18, Noida, Uttar Pradesh" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Contact Phone *</label>
+                <input type="tel" id="bbPhone" placeholder="011-2345678" required />
+              </div>
+              <div class="form-group">
+                <label>Operating Hours *</label>
+                <input type="text" id="bbOpen" placeholder="24/7  or  9AM–6PM" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Available Blood Groups (select multiple)</label>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;" id="bbBloodCheckboxes">
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="A+" class="bb-blood" />
+                  <span class="checkmark"></span> A+</label>
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="A-" class="bb-blood" />
+                  <span class="checkmark"></span> A-</label>
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="B+" class="bb-blood" />
+                  <span class="checkmark"></span> B+</label>
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="B-" class="bb-blood" />
+                  <span class="checkmark"></span> B-</label>
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="AB+" class="bb-blood" />
+                  <span class="checkmark"></span> AB+</label>
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="AB-" class="bb-blood" />
+                  <span class="checkmark"></span> AB-</label>
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="O+" class="bb-blood" />
+                  <span class="checkmark"></span> O+</label>
+                <label class="checkbox-label" style="flex:unset;"><input type="checkbox" value="O-" class="bb-blood" />
+                  <span class="checkmark"></span> O-</label>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit">
+              <span>🏥</span> Register Blood Bank
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: DONOR INBOX ─── -->
+    <section class="section" id="section-donor-inbox">
+      <div class="container">
+        <div class="page-header">
+          <h1>📥 My Appointments</h1>
+          <p>Track all your blood donation appointments and their status</p>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="filter-tab active" onclick="filterDonorInbox('all', this)">All</button>
+              <button class="filter-tab" onclick="filterDonorInbox('pending', this)">Pending</button>
+              <button class="filter-tab" onclick="filterDonorInbox('confirmed', this)">Confirmed</button>
+              <button class="filter-tab" onclick="filterDonorInbox('done', this)">Done</button>
+            </div>
+            <span class="badge-info" id="donorInboxCount">0 appointments</span>
+          </div>
+          <div id="donorInboxList" style="padding:8px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: INBOX (BLOOD BANKS ONLY) ─── -->
+    <section class="section" id="section-inbox">
+      <div class="container">
+        <div class="page-header">
+          <h1>📥 Appointment Inbox</h1>
+          <p>All donation appointments booked for your facility</p>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="panel">
+          <div class="panel-header">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="filter-tab active" onclick="filterInbox('all', this)">All</button>
+              <button class="filter-tab" onclick="filterInbox('pending', this)">Pending</button>
+              <button class="filter-tab" onclick="filterInbox('confirmed', this)">Confirmed</button>
+              <button class="filter-tab" onclick="filterInbox('done', this)">Done</button>
+            </div>
+            <span class="badge-info" id="inboxTotalCount">0 appointments</span>
+          </div>
+          <div id="inboxAppointmentList" style="padding:8px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SECTION: BLOOD STOCK (BLOOD BANKS ONLY) ─── -->
+    <section class="section" id="section-stock">
+      <div class="container">
+        <div class="page-header">
+          <h1>🩸 Blood Stock Manager</h1>
+          <p>View and update your blood bank's available units per blood type</p>
+        </div>
+
+        <!-- Stock Overview Grid -->
+        <div class="blood-grid" id="stockGrid" style="margin-bottom:32px;"></div>
+
+        <!-- Update Units Form -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>⚙️ Update Blood Units</h3>
+          </div>
+          <div style="padding:24px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group">
+                <label>Blood Group</label>
+                <select id="stockBloodType">
+                  <option value="">Select Blood Group</option>
+                  <option>A+</option>
+                  <option>A-</option>
+                  <option>B+</option>
+                  <option>B-</option>
+                  <option>AB+</option>
+                  <option>AB-</option>
+                  <option>O+</option>
+                  <option>O-</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Available Units</label>
+                <input type="number" id="stockUnits" placeholder="e.g. 10" min="0" max="500" />
+              </div>
+            </div>
+            <button class="btn-submit" style="max-width:240px;" onclick="updateStock()">⭐ Update Stock</button>
+          </div>
+        </div>
+
+        <!-- Donation History -->
+        <div class="panel mt-2">
+          <div class="panel-header">
+            <h3>📋 Donation History</h3>
+            <span class="badge-info" id="donationHistoryCount">0 records</span>
+          </div>
+          <div id="donationHistoryList" style="padding:0 8px 8px;"></div>
+        </div>
+
+        <!-- Appointments Inbox -->
+        <div class="panel mt-2">
+          <div class="panel-header">
+            <h3>📅 Incoming Appointments</h3>
+            <span class="badge-info" id="apptInboxCount">0 appointments</span>
+          </div>
+          <div id="apptInboxList" style="padding:0 8px 8px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── MODAL: SUCCESS ─── -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+      <div class="modal" id="modal" onclick="event.stopPropagation()">
+        <div class="modal-icon" id="modalIcon">✅</div>
+        <h2 id="modalTitle">Success!</h2>
+        <p id="modalMsg">Your registration was successful.</p>
+        <div id="modalDonorCard"></div>
+        <button class="btn-submit" onclick="closeModal()">Done</button>
+      </div>
+    </div>
+
+    <!-- ─── MODAL: BOOK APPOINTMENT ─── -->
+    <div class="modal-overlay" id="apptModalOverlay" onclick="closeApptModal()">
+      <div class="modal" onclick="event.stopPropagation()" style="max-width:420px;">
+        <div class="modal-icon">📅</div>
+        <h2>Book Donation Appointment</h2>
+        <p id="apptBankName" style="color:var(--red);font-weight:600;margin-bottom:12px;"></p>
+        <div style="display:grid;gap:14px;text-align:left;">
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="apptName" placeholder="Full name" />
+          </div>
+          <div class="form-group">
+            <label>Your Phone</label>
+            <input type="tel" id="apptPhone" placeholder="Mobile number" />
+          </div>
+          <div class="form-group">
+            <label>Blood Type to Donate</label>
+            <select id="apptBlood">
+              <option value="">Select your blood type</option>
+              <option>A+</option>
+              <option>A-</option>
+              <option>B+</option>
+              <option>B-</option>
+              <option>AB+</option>
+              <option>AB-</option>
+              <option>O+</option>
+              <option>O-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Appointment Date</label>
+            <input type="date" id="apptDate" />
+          </div>
+          <div class="form-group">
+            <label>Preferred Time</label>
+            <input type="time" id="apptTime" />
+          </div>
+          <div class="form-group">
+            <label>Note (optional)</label>
+            <input type="text" id="apptNote" placeholder="e.g. first-time donor" />
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          <button class="btn-submit" onclick="confirmAppointment()" style="flex:1;">📅 Confirm Appointment</button>
+          <button class="btn-submit" onclick="closeApptModal()"
+            style="flex:1;background:var(--surface2);color:var(--text);">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── MODAL: DONATE UNITS ─── -->
+    <div class="modal-overlay" id="donateModalOverlay" onclick="closeDonateModal()">
+      <div class="modal" id="donateModal" onclick="event.stopPropagation()" style="max-width:380px;">
+        <div class="modal-icon">💉</div>
+        <h2>Confirm Donation</h2>
+        <p id="donateModalInfo" style="margin-bottom:16px;font-size:0.9rem;color:var(--text2);"></p>
+        <div class="form-group" style="text-align:left;">
+          <label>Units to Donate (1–2)</label>
+          <select id="donateUnitsSelect"
+            style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:1rem;">
+            <option value="1">1 Unit</option>
+            <option value="2">2 Units</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <button class="btn-submit" onclick="confirmDonorFulfill()" style="flex:1;">✅ Confirm Donation</button>
+          <button class="btn-submit" onclick="closeDonateModal()"
+            style="flex:1;background:var(--surface2);color:var(--text);">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION: ABOUT US ─── -->
+    <section class="section" id="section-about">
+      <div class="container">
+        <div class="page-header" style="text-align: center;">
+          <h1>✨ About RedPulse Nexus</h1>
+          <p>Learn about our mission and the team behind the platform</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px;" class="about-grid">
+          <!-- Mission Statement -->
+          <div class="panel" style="padding: 32px; height: 100%;">
+            <h2
+              style="color: var(--rose); margin-bottom: 24px; font-size: 1.5rem; display: flex; align-items: center; gap: 8px;">
+              <span>🌍</span> Social Wellness Contribution
+            </h2>
+            <p style="color: var(--text2); line-height: 1.7; margin-bottom: 16px; font-size: 1.05rem;">
+              RedPulse Nexus is designed to bridge the critical gap between blood donors, hospitals, and patients during
+              vital emergencies. In many regions, the lack of real-time data regarding blood availability leads to
+              tragic and preventable losses.
+            </p>
+            <p style="color: var(--text2); line-height: 1.7; margin-bottom: 16px; font-size: 1.05rem;">
+              By bringing transparency to blood stocks, simplifying donor registration, and providing a GPS-powered
+              locator, RedPulse transforms a previously fragmented process into a unified, life-saving digital network.
+            </p>
+            <p style="color: var(--text2); line-height: 1.7; font-size: 1.05rem;">
+              Our platform empowers communities to actively participate in social wellness, ensuring that every drop of
+              donated blood reaches those who need it most, precisely when they need it.
+            </p>
+          </div>
+
+          <!-- Team Cold Blooded -->
+          <div class="panel" style="padding: 32px; height: 100%;">
+            <h2
+              style="color: var(--rose); margin-bottom: 24px; font-size: 1.5rem; display: flex; align-items: center; gap: 8px;">
+              <span>🧊</span> Team Cold Blooded
+            </h2>
+            <p style="color: var(--text2); margin-bottom: 24px; font-size: 1.05rem;">
+              We are a passionate team of developers dedicated to using technology for social good and emergency
+              healthcare optimization.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div
+                style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--border); transition: transform 0.2s ease;">
+                <div
+                  style="font-size: 2.2rem; background: var(--surface1); border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                  🧑‍💻</div>
+                <div>
+                  <h3 style="margin: 0 0 4px 0; font-size: 1.1rem; color: var(--text); white-space: nowrap;">Aditya
+                    Pratap Singh - BCA 1ST
+                    Year(2025-2028)</h3>
+                  <span style="color: var(--text3); font-size: 0.9rem; font-weight: 500;">Team Member</span>
+                </div>
+              </div>
+
+              <div
+                style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--border); transition: transform 0.2s ease;">
+                <div
+                  style="font-size: 2.2rem; background: var(--surface1); border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                  🧑‍💻</div>
+                <div>
+                  <h3 style="margin: 0 0 4px 0; font-size: 1.1rem; color: var(--text); white-space: nowrap;">Krish
+                    Agarwal - BCA 1ST
+                    Year(2025-2028)</h3>
+                  <span style="color: var(--text3); font-size: 0.9rem; font-weight: 500;">Team Member</span>
+                </div>
+              </div>
+
+              <div
+                style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--border); transition: transform 0.2s ease;">
+                <div
+                  style="font-size: 2.2rem; background: var(--surface1); border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                  🧑‍💻</div>
+                <div>
+                  <h3 style="margin: 0 0 4px 0; font-size: 1.1rem; color: var(--text); white-space: nowrap;">Satyam
+                    Yadav - BCA 1ST
+                    Year(2025-2028)</h3>
+                  <span style="color: var(--text3); font-size: 0.9rem; font-weight: 500;">Team Member</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <style>
+      @media (max-width: 768px) {
+        .about-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    </style>
+
+    <script src="js/data.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="js/app.js"></script>
+  </div> <!-- /app-wrapper -->
+</body>
+
+</html>
